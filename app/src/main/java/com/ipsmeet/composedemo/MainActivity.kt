@@ -1,14 +1,18 @@
 package com.ipsmeet.composedemo
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,20 +32,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ipsmeet.composedemo.ui.theme.ComposeDemoTheme
@@ -52,23 +61,62 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeDemoTheme {
-                Column {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row {
-                        Spacer(
-                            modifier = Modifier
-                                .width(10.dp)
-                                .padding(15.dp)
-                        )
-                        Greeting("Android")
-                    }
-                    FirstLayout()
-                    IncrementCounter()
-                    CreateList()
-                }   // column
-            }
+                var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
+                if (shouldShowOnboarding) {
+                    OnboardingScreen(onContinue = { shouldShowOnboarding = false })
+                } else {
+                    MyApp()
+                }
+            }   // ComposeDemoTheme
         }
     }
+}
+
+@Composable
+fun OnboardingScreen(onContinue: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            "Welcome to the\nBasics compose demo app!",
+            textAlign = TextAlign.Center
+        )
+        Button(
+            modifier = Modifier.padding(vertical = 24.dp),
+            onClick = onContinue
+        ) {
+            Text("Continue")
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+fun OnboardingPreview() {
+    ComposeDemoTheme {
+        OnboardingScreen {}
+    }
+}
+
+@Composable
+fun MyApp() {
+    Column {
+        Spacer(modifier = Modifier.height(10.dp))
+        Row {
+            Spacer(
+                modifier = Modifier
+                    .width(10.dp)
+                    .padding(15.dp)
+            )
+            Greeting("Android")
+        }
+        FirstLayout()
+        IncrementCounter()
+        CreateList()
+        IntentButton(LocalContext.current)
+    }   // column
 }
 
 @Composable
@@ -77,14 +125,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         text = "Hello $name!",
         modifier = modifier
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ComposeDemoTheme {
-        Greeting("Android")
-    }
 }
 
 @Preview(showBackground = true)
@@ -193,6 +233,7 @@ fun IncrementCounter() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
 @Composable
 fun CreateList() {
     var data by remember { mutableStateOf("") }
@@ -201,7 +242,7 @@ fun CreateList() {
     LaunchedEffect(Unit) { state.animateScrollTo(100) }
 
     Surface(
-        color = Pink80,
+//        color = Pink80,
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, Color.Black)
@@ -217,22 +258,31 @@ fun CreateList() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(15.dp, 15.dp, 15.dp, 15.dp),
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.width(15.dp))
                 OutlinedTextField(
                     value = data,
-                    modifier = Modifier.size(150.dp, 50.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color.Green,
+                        containerColor = Color.White
+                    ),
+                    label = {
+                        Text(
+                            text = "Enter something",
+                            modifier = Modifier.background(Color.Transparent)
+                        )
+                    },
+                    modifier = Modifier
+                        .size(150.dp, Dp.Infinity)
+                        .weight(2.6f),
                     onValueChange = { text ->
                         data = text
                     }
-                )
-                Spacer(
-                    modifier = Modifier
-                        .width(5.dp)
-                        .weight(1f)
-                )
+                )   // outlined-text-field
+                Spacer(modifier = Modifier.width(5.dp))
                 Button(
+                    modifier = Modifier.weight(1.5f),
                     onClick = {
                         if (data != "") {
                             dataList = dataList + data
@@ -240,7 +290,7 @@ fun CreateList() {
                         }
                     }) {
                     Text(text = "Add data", modifier = Modifier.clip(RoundedCornerShape(1.dp)))
-                }
+                }   // button
             }   // row
             if (dataList.isNotEmpty()) {
                 Column(
@@ -264,4 +314,43 @@ fun CreateList() {
             }   // if
         }   // column
     }   // surface
+}
+
+@Composable
+fun IntentButton(context: Context) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(15.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            modifier = Modifier.size(200.dp, Dp.Infinity),
+            onClick = {
+                context.startActivity(
+                    Intent(context.applicationContext, MainActivity2::class.java)
+                )
+            }) {
+            Text(
+                text = "Click here to see EXTENDABLE LAZY-LIST",
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    ComposeDemoTheme {
+        Greeting("Android")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun IntentButtonPreview() {
+    IntentButton(context = LocalContext.current)
 }
