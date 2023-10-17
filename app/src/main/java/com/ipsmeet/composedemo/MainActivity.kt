@@ -80,7 +80,7 @@ fun OnboardingScreen(onContinue: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "Welcome to the\nBasics compose demo app!",
+            text = "Welcome to the\nBasics compose demo app!",
             textAlign = TextAlign.Center
         )
         Button(
@@ -115,7 +115,8 @@ fun MyApp() {
         FirstLayout()
         IncrementCounter()
         CreateList()
-        IntentButton(LocalContext.current)
+        IntentExtendedLazyList(LocalContext.current)
+        IntentRealDemo(LocalContext.current)
     }   // column
 }
 
@@ -261,11 +262,9 @@ fun CreateList() {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    value = data,
+                OutlinedTextField(value = data,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = Color.Green,
-                        containerColor = Color.White
+                        focusedBorderColor = Color.Green, containerColor = Color.White
                     ),
                     label = {
                         Text(
@@ -278,17 +277,14 @@ fun CreateList() {
                         .weight(2.6f),
                     onValueChange = { text ->
                         data = text
-                    }
-                )   // outlined-text-field
+                    })   // outlined-text-field
                 Spacer(modifier = Modifier.width(5.dp))
-                Button(
-                    modifier = Modifier.weight(1.5f),
-                    onClick = {
-                        if (data != "") {
-                            dataList = dataList + data
-                            data = ""
-                        }
-                    }) {
+                Button(modifier = Modifier.weight(1.5f), onClick = {
+                    if (data != "") {
+                        dataList = dataList + data
+                        data = ""
+                    }
+                }) {
                     Text(text = "Add data", modifier = Modifier.clip(RoundedCornerShape(1.dp)))
                 }   // button
             }   // row
@@ -297,9 +293,7 @@ fun CreateList() {
                     modifier = Modifier.padding(15.dp)
                 ) {
                     Text(
-                        text = "List:",
-                        fontSize = 18.sp,
-                        textDecoration = TextDecoration.Underline
+                        text = "List:", fontSize = 18.sp, textDecoration = TextDecoration.Underline
                     )
                     LazyColumn(
                         modifier = Modifier
@@ -317,7 +311,7 @@ fun CreateList() {
 }
 
 @Composable
-fun IntentButton(context: Context) {
+fun IntentExtendedLazyList(context: Context) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -337,8 +331,29 @@ fun IntentButton(context: Context) {
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
-        }
-    }
+        }   // button
+    }   // column
+}
+
+@Composable
+fun IntentRealDemo(context: Context) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(15.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(modifier = Modifier.size(200.dp, Dp.Infinity), onClick = {
+            context.startActivity(
+                Intent(context.applicationContext, MainActivity3::class.java)
+            )
+        }) {
+            Text(
+                text = "Click here", fontSize = 16.sp, textAlign = TextAlign.Center
+            )
+        }   // button
+    }   // column
 }
 
 @Preview(showBackground = true)
@@ -351,6 +366,12 @@ fun GreetingPreview() {
 
 @Preview(showBackground = true)
 @Composable
+fun IntentRealDemoPreview() {
+    IntentExtendedLazyList(context = LocalContext.current)
+}
+
+@Preview(showBackground = true)
+@Composable
 fun IntentButtonPreview() {
-    IntentButton(context = LocalContext.current)
+    IntentRealDemo(context = LocalContext.current)
 }

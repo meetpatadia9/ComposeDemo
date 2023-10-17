@@ -3,8 +3,9 @@ package com.ipsmeet.composedemo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -58,7 +59,10 @@ fun SingleListView(i: String) {
     var expanded by remember { mutableStateOf(false) }
     val bottomSpace by animateDpAsState(
         targetValue = if (expanded) 100.dp else 0.dp,
-        animationSpec = tween(durationMillis = 1550),
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
         label = "tween"
     )
 
@@ -75,7 +79,7 @@ fun SingleListView(i: String) {
                 .padding(vertical = 5.dp, horizontal = 5.dp)
         ) {
             Row(
-                modifier = Modifier.padding(bottom = bottomSpace),
+                modifier = Modifier.padding(bottom = bottomSpace.coerceAtLeast(0.dp)),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
